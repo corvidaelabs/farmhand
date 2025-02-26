@@ -13,7 +13,9 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    environment: staging
+    environment:
+      name: staging
+      url: https://staging.farmhand.witchscrow.com
     needs: build
     steps:
       - name: Checkout code
