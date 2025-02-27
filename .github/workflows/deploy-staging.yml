@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: staging
-      url: https://staging.farmhand.witchscrow.com
+      url: https://farmhand.sneakycrow.dev
     needs: build
     steps:
       - name: Checkout code

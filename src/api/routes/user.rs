@@ -251,7 +251,7 @@ async fn setup_chat_messages_webhook(
         .map_err(|e| WebhookError::UserNotFound(e.to_string()))?;
 
     // Your webhook URL
-    let webhook_url = format!("https://staging.api.farmhand.witchscrow.com/eventsub");
+    let webhook_url = format!("https://fh-api.sneakycrow.dev/eventsub");
 
     let twitch_account = user
         .accounts
