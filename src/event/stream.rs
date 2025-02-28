@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use async_nats::{
     jetstream::{
         self,
@@ -44,7 +46,8 @@ impl Stream {
                 name: name.clone(),
                 subjects,
                 description,
-                max_bytes: 1024 * 1024 * 1024, // 1GB
+                // max_bytes: 1024 * 1024 * 1024, // 1GB
+                max_age: Duration::from_secs(60 * 60 * 24 * 30), // 1 month
                 ..Default::default()
             })
             .await
