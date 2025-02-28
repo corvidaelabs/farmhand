@@ -52,11 +52,9 @@ jobs:
           platforms: linux/amd64
           tags: |
             ${{ steps.image_tag.outputs.value }}
-          cache-from: |
-            type=registry,ref=${{ secrets.DO_REGISTRY }}/${{ vars.API_IMAGE }}:buildcache
-            type=registry,ref=${{ secrets.DO_REGISTRY }}/${{ vars.API_IMAGE }}:latest
-          cache-to: |
-            type=registry,ref=${{ secrets.DO_REGISTRY }}/${{ vars.API_IMAGE }}:buildcache,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
 
       - name: Image digest
         run: echo "API image digest $(doctl registry repository digest-list ${{ vars.API_IMAGE }} --format Tag,Digest --no-header | grep ${{ needs.setup.outputs.version }})"
@@ -92,8 +90,8 @@ jobs:
           platforms: linux/amd64
           tags: |
             ${{ steps.image_tag.outputs.value }}
-          cache-from: type=registry,ref=${{ secrets.DO_REGISTRY }}/${{ vars.UI_IMAGE }}:buildcache
-          cache-to: type=registry,ref=${{ secrets.DO_REGISTRY }}/${{ vars.UI_IMAGE }}:buildcache,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Image digest
         run: echo "UI image digest $(doctl registry repository digest-list ${{ vars.UI_IMAGE }} --format Tag,Digest --no-header | grep ${{ needs.setup.outputs.version }})"
