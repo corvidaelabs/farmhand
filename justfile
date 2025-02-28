@@ -2,7 +2,6 @@ set dotenv-load := true
 
 # Initialization Commands
 up:
-    @just create-db
     cargo run --bin up
 
 # De-initialization Commands
