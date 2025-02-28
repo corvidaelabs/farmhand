@@ -3,10 +3,10 @@ kind: ConfigMap
 metadata:
   name: farmhand-api-config
 data:
-  FRONTEND_URL: "https://staging.farmhand.witchscrow.com"
+  FRONTEND_URL: "https://farmhand.sneakycrow.dev"
   RUST_LOG: "api=debug,db=debug,farmhand=debug,tower_http=debug,axum::rejection=trace"
   FFMPEG_LOCATION: "/opt/homebrew/bin/ffmpeg" # TODO: Make this is the right path for docker context
-  TWITCH_REDIRECT_URI: "https://staging.api.farmhand.witchscrow.com/auth/twitch/callback"
+  TWITCH_REDIRECT_URI: "https://fh-api.sneakycrow.dev/auth/twitch/callback"
   STORAGE: "videos/staging" # TODO: Make this dynamic per environment
   UPLOAD_BUCKET: "farmhand"
   NATS_URL: "nats://nats.staging.svc.cluster.local:4222"

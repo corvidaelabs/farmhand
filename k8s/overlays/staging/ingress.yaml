@@ -16,10 +16,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - staging.farmhand.witchscrow.com
+        - farmhand.sneakycrow.dev
       secretName: farmhand-ui-staging-tls
   rules:
-    - host: staging.farmhand.witchscrow.com
+    - host: farmhand.sneakycrow.dev
       http:
         paths:
           - path: /
@@ -52,10 +52,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - staging.api.farmhand.witchscrow.com
+        - fh-api.sneakycrow.dev
       secretName: farmhand-api-staging-tls
   rules:
-    - host: staging.api.farmhand.witchscrow.com
+    - host: fh-api.sneakycrow.dev
       http:
         paths:
           - path: /

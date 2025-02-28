@@ -17,9 +17,8 @@ async fn main() -> Result<()> {
         .with(tracing_subscriber::fmt::layer())
         .init();
     tracing::info!("Initializing project");
-    // Run database-related initialization tasks
-    let (_db_handle, _nats_handle) = tokio::join!(init_project_db(), init_project_nats());
-
+    let _ = tokio::join!(init_project_db(), init_project_nats());
+    tracing::info!("Successfully initialized project");
     Ok(())
 }
 
