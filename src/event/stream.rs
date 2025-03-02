@@ -1,15 +1,21 @@
-use std::time::Duration;
-
+use super::Event;
+use crate::{
+    error::StreamError,
+    event::{EVENT_PREFIX, MESSAGE_PREFIX},
+    twitch::ChatMessagePayload,
+};
 use async_nats::{
     jetstream::{
         self,
-        consumer::{pull::Config, Consumer},
+        consumer::{pull::Config, Consumer, DeliverPolicy},
         Context,
     },
     Client,
 };
-
-use crate::error::StreamError;
+use chrono::{DateTime, Utc};
+use futures::StreamExt;
+use std::time::Duration;
+use time::OffsetDateTime;
 
 pub const EVENT_STREAM: &str = "FARMHAND_EVENTS";
 
@@ -97,5 +103,98 @@ impl Stream {
             .map_err(|e| StreamError::InvalidConnection(e.to_string()))?;
 
         Ok(())
+    }
+    /// Gets the subject for all events by a user
+    fn get_subject_all_user_events(&self, username: String) -> String {
+        format!(
+            "{}.{}.twitch.events.{}.>",
+            MESSAGE_PREFIX, EVENT_PREFIX, username
+        )
+    }
+    /// Gets all events within time range for subject
+    pub async fn get_user_events(
+        &self,
+        username: String,
+        start_time: DateTime<Utc>,
+        end_time: Option<DateTime<Utc>>,
+    ) -> Result<Vec<Event>, StreamError> {
+        // Create the subject for the given user
+        let subject = self.get_subject_all_user_events(username);
+        // Configure a consumer to get all events after the start time
+        let consumer_config = jetstream::consumer::pull::Config {
+            filter_subject: subject,
+            max_deliver: 3,
+            deliver_policy: DeliverPolicy::ByStartTime {
+                start_time: {
+                    let timestamp = start_time.timestamp();
+                    let nanoseconds = start_time.timestamp_subsec_nanos();
+
+                    OffsetDateTime::from_unix_timestamp(timestamp)?
+                        .replace_nanosecond(nanoseconds as u32)?
+                },
+            },
+            ..Default::default()
+        };
+
+        // Create the consumer
+        let consumer = self
+            .jetstream
+            .create_consumer_on_stream(consumer_config, self.name.to_string())
+            .await
+            .map_err(|e| StreamError::InvalidConnection(e.to_string()))?;
+
+        // Initialize the events vector
+        let mut events = Vec::new();
+        let mut batch = consumer.fetch().max_messages(100).messages().await?;
+        while let Some(message) = batch.next().await {
+            let Ok(message) = message else {
+                tracing::error!("Failed to unwrap message: {:?}", message);
+                continue;
+            };
+            let timestamp_utc: DateTime<Utc> = match message.info() {
+                Ok(info) => {
+                    // Attempt to parse the timestamp
+                    let timestamp = DateTime::from_timestamp(
+                        info.published.unix_timestamp(),
+                        info.published.nanosecond(),
+                    );
+
+                    // If the timestamp is invalid, log an error and continue
+                    match timestamp {
+                        Some(timestamp) => timestamp,
+                        None => {
+                            tracing::error!("Failed to parse timestamp");
+                            continue;
+                        }
+                    }
+                }
+                Err(e) => {
+                    tracing::error!("Failed to get message info: {:?}", e);
+                    continue;
+                }
+            };
+
+            if let Some(end_time) = end_time {
+                // Check if the message is after the end time
+                if timestamp_utc > end_time {
+                    break;
+                }
+            }
+
+            // Parse the event
+            let event = serde_json::from_slice::<Event>(&message.payload);
+            match event {
+                Ok(event) => events.push(event),
+                Err(e) => {
+                    // Some old chat messages are sent without the event wrapper, so attempt to parse them as a raw message
+                    // TODO: Remove in the next major release
+                    match serde_json::from_slice::<ChatMessagePayload>(&message.payload) {
+                        Ok(raw_message) => events.push(Event::from(raw_message)),
+                        Err(_) => tracing::error!("Failed to parse event: {:?}", e),
+                    }
+                }
+            };
+        }
+        Ok(events)
     }
 }

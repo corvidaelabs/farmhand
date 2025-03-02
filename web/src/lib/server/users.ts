@@ -104,3 +104,37 @@ export const getStreamsByToken = async (
 		throw UserError.UNKNOWN;
 	}
 };
+
+export const getEventsByDate = async (
+	token: string,
+	username: string,
+	startTime: string,
+	endTime: string | null
+): Promise<any[]> => {
+	try {
+		const url = new URL(`${env.API_URL}/user/events`);
+		url.searchParams.append('username', username);
+		url.searchParams.append('start_time', startTime);
+		if (endTime) {
+			url.searchParams.append('end_time', endTime);
+		}
+
+		const response = await fetch(url, {
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		});
+
+		if (response.ok) {
+			const data = (await response.json()) as { events: any[] };
+			return data.events;
+		} else {
+			throw UserError.INVALID_TOKEN;
+		}
+	} catch (e) {
+		if (e === UserError.INVALID_TOKEN) {
+			throw e;
+		}
+		throw UserError.UNKNOWN;
+	}
+};
