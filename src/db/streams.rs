@@ -1,8 +1,8 @@
 use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
+use serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer};
 use sqlx::{types::Uuid, PgPool};
 
-#[derive(sqlx::FromRow, Debug, Serialize, Deserialize, Clone)]
+#[derive(sqlx::FromRow, Debug, Deserialize, Clone)]
 pub struct Stream {
     pub id: Uuid,
     pub user_id: Uuid,
@@ -12,6 +12,25 @@ pub struct Stream {
     pub video_url: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+}
+
+impl Serialize for Stream {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut state = serializer.serialize_struct("Stream", 7)?; // 7 fields (excluding user_id)
+
+        state.serialize_field("id", &self.id)?;
+        state.serialize_field("start_time", &self.start_time)?;
+        state.serialize_field("end_time", &self.end_time)?;
+        state.serialize_field("event_log_url", &self.event_log_url)?;
+        state.serialize_field("video_url", &self.video_url)?;
+        state.serialize_field("created_at", &self.created_at)?;
+        state.serialize_field("updated_at", &self.updated_at)?;
+
+        state.end()
+    }
 }
 
 impl Stream {
@@ -67,6 +86,7 @@ impl Stream {
             .fetch_all(pool)
             .await
     }
+
     /// Finds all streams for a specific user
     pub async fn find_by_user_id(user_id: Uuid, pool: &PgPool) -> Result<Vec<Self>, sqlx::Error> {
         sqlx::query_as::<_, Self>(

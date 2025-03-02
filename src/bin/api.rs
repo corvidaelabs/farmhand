@@ -70,6 +70,7 @@ async fn main() {
             Router::new()
                 .route("/me", get(routes::user::get_self))
                 .route("/me", put(routes::user::save_user))
+                .route("/streams", get(routes::streams::get_streams))
                 .layer(axum_mw::from_fn_with_state(
                     state.clone(),
                     middleware::auth::auth_middleware,
