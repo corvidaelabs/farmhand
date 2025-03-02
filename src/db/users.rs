@@ -75,7 +75,7 @@ struct UserWithSettingsAndAccount {
     pub account_updated_at: Option<DateTime<Utc>>,
 }
 
-#[derive(sqlx::Type, Serialize, Deserialize, Clone)]
+#[derive(sqlx::Type, Serialize, Deserialize, Clone, PartialEq)]
 #[sqlx(type_name = "user_role", rename_all = "lowercase")]
 pub enum UserRole {
     Admin,

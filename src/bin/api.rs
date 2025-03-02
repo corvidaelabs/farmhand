@@ -44,6 +44,13 @@ async fn main() {
             Router::new()
                 .route("/register", post(routes::auth::register))
                 .route("/login", post(routes::auth::login))
+                .route(
+                    "/shadow",
+                    get(routes::auth::shadow::shadow_user).layer(axum_mw::from_fn_with_state(
+                        state.clone(),
+                        middleware::auth::auth_middleware,
+                    )),
+                )
                 .nest(
                     "/twitch",
                     Router::new()
