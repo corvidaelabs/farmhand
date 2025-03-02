@@ -246,13 +246,15 @@ pub async fn handle_webhook(
                         return (StatusCode::BAD_REQUEST, "Invalid event data").into_response();
                     };
                     // Get the subject
-                    let subject = Event::from(message_payload).get_subject();
+                    let event = Event::from(message_payload);
+                    let subject = event.get_subject();
+                    let Ok(payload) = serde_json::to_string(&event) else {
+                        tracing::error!("Failed to parse channel.chat.message notification");
+                        return (StatusCode::BAD_REQUEST, "Invalid event data").into_response();
+                    };
                     state
                         .event_stream
-                        .publish(
-                            subject.to_string(),
-                            raw_payload.to_string(), // Pass the original payload so we can skip serialization
-                        )
+                        .publish(subject.to_string(), payload)
                         .await
                         .map_err(|e| {
                             tracing::error!("Failed to publish chat message job: {}", e);
