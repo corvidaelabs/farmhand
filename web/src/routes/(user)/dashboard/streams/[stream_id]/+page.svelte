@@ -2,6 +2,7 @@
 	import { format } from 'date-fns';
 
 	const { data } = $props();
+	console.log(data);
 </script>
 
 <section class="flex flex-col space-y-4">
@@ -11,5 +12,8 @@
 	{/if}
 	{#if data.stream?.end_time}
 		<p>Stream ended at {format(data.stream.end_time, 'yyyy-MM-dd HH:mm:ss')}</p>
+	{/if}
+	{#if data.events}
+		Total Events: {data.events.length}
 	{/if}
 </section>
