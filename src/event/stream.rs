@@ -2,6 +2,7 @@ use super::Event;
 use crate::{
     error::StreamError,
     event::{EVENT_PREFIX, MESSAGE_PREFIX},
+    twitch::ChatMessagePayload,
 };
 use async_nats::{
     jetstream::{
@@ -184,7 +185,14 @@ impl Stream {
             let event = serde_json::from_slice::<Event>(&message.payload);
             match event {
                 Ok(event) => events.push(event),
-                Err(e) => tracing::error!("Failed to deserialize event: {:?}", e),
+                Err(e) => {
+                    // Some old chat messages are sent without the event wrapper, so attempt to parse them as a raw message
+                    // TODO: Remove in the next major release
+                    match serde_json::from_slice::<ChatMessagePayload>(&message.payload) {
+                        Ok(raw_message) => events.push(Event::from(raw_message)),
+                        Err(_) => tracing::error!("Failed to parse event: {:?}", e),
+                    }
+                }
             };
         }
         Ok(events)
