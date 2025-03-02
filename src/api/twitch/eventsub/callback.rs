@@ -1,3 +1,9 @@
+use crate::{
+    api::{app_state::AppState, routes::auth::oauth::twitch::TwitchCredentials},
+    db::streams::Stream,
+    event::Event,
+    twitch::{subscription::Notification, ChatMessagePayload, StreamStatusPayload},
+};
 use axum::{
     extract::State,
     http::{HeaderMap, StatusCode},
@@ -8,13 +14,6 @@ use chrono::Utc;
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
 use std::sync::Arc;
-
-use crate::{
-    api::{app_state::AppState, routes::auth::oauth::twitch::TwitchCredentials},
-    db::streams::Stream,
-    event::Event,
-    twitch::{subscription::Notification, ChatMessagePayload, StreamStatusPayload},
-};
 
 type HmacSha256 = Hmac<Sha256>;
 const HMAC_PREFIX: &str = "sha256=";

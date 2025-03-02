@@ -60,3 +60,47 @@ export const getUserByEmail = async (email: string, token: string): Promise<User
 		throw UserError.UNKNOWN;
 	}
 };
+
+export type StreamData = {
+	id: string;
+	start_time: string;
+	end_time: string | null;
+	event_log_url: string | null;
+	video_url: string | null;
+	created_at: string;
+	updated_at: string;
+};
+
+export interface StreamResponse {
+	streams: StreamData[];
+}
+
+export const getStreamsByToken = async (
+	token: string,
+	streamID?: string
+): Promise<StreamData[]> => {
+	try {
+		const url = new URL(`${env.API_URL}/user/streams`);
+		if (streamID) {
+			url.searchParams.append('stream_id', streamID);
+		}
+
+		const response = await fetch(url, {
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		});
+
+		if (response.ok) {
+			const data = (await response.json()) as StreamResponse;
+			return data.streams;
+		} else {
+			throw UserError.INVALID_TOKEN;
+		}
+	} catch (e) {
+		if (e === UserError.INVALID_TOKEN) {
+			throw e;
+		}
+		throw UserError.UNKNOWN;
+	}
+};

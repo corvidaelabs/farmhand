@@ -4,14 +4,11 @@
 	import MyAccount from '$lib/components/MyAccount.svelte';
 	import ThemeToggler from '$lib/components/ThemeToggler.svelte';
 	import AppLayout from '$lib/components/AppLayout.svelte';
+	import Alert from '$lib/components/Alert.svelte';
+	import StreamCard from '$lib/components/StreamCard.svelte';
 
 	let { children, data }: { children: Snippet; data: LayoutServerData } = $props();
-	const sidebarLinks = [
-		{
-			link: '/dashboard/streams',
-			label: 'Streams'
-		}
-	];
+	const streams = data.streams || [];
 </script>
 
 <AppLayout>
@@ -25,17 +22,12 @@
 		</nav>
 	{/snippet}
 	{#snippet sidebar()}
-		<nav>
-			<ul>
-				{#each sidebarLinks as link}
-					<li class="font-semibold uppercase">
-						<a href={link.link}>{link.label}</a>
-					</li>
-				{/each}
-			</ul>
-		</nav>
+		{#each streams as stream}
+			<StreamCard {stream} routePrefix="/dashboard/streams" />
+		{/each}
 	{/snippet}
 	{#snippet main()}
+		<Alert message="This page is still under construction" type="warning" class="mb-4" />
 		{@render children()}
 	{/snippet}
 </AppLayout>

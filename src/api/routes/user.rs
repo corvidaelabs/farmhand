@@ -1,5 +1,4 @@
 use std::sync::Arc;
-
 use anyhow::Result;
 use axum::{
     extract::{Query, State},

@@ -37,6 +37,7 @@ export default {
 			]
 		},
 		fontSize: {
+			'2xs': '0.75rem',
 			xs: '0.85rem',
 			sm: '1rem',
 			base: ['1.1rem', { lineHeight: '1.25rem' }],

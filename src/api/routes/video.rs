@@ -1,3 +1,7 @@
+use crate::{
+    api::app_state::AppState,
+    db::{ProcessingStatus, User, Video},
+};
 use axum::{
     extract::{Query, State},
     http::StatusCode,
@@ -6,11 +10,6 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-
-use crate::{
-    api::app_state::AppState,
-    db::{ProcessingStatus, User, Video},
-};
 
 #[derive(Deserialize, Debug)]
 pub struct VideoByID {

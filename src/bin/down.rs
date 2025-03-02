@@ -1,7 +1,6 @@
 use anyhow::Result;
 use farmhand::{db, event::Stream, nats::create_nats_client, queue::Queue};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-use tracing::instrument;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -18,10 +17,7 @@ async fn main() -> Result<()> {
         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
     }
     tracing::info!("Starting deletion process");
-    let _ = tokio::join!(
-        down_db(),
-        down_nats()
-    );
+    let _ = tokio::join!(down_db(), down_nats());
     tracing::info!("Successfully deleted all data from the project");
     Ok(())
 }
