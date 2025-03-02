@@ -71,6 +71,7 @@ async fn main() {
                 .route("/me", get(routes::user::get_self))
                 .route("/me", put(routes::user::save_user))
                 .route("/streams", get(routes::streams::get_streams))
+                .route("/events", get(routes::events::get_events))
                 .layer(axum_mw::from_fn_with_state(
                     state.clone(),
                     middleware::auth::auth_middleware,
