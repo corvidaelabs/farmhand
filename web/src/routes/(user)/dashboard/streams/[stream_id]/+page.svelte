@@ -2,7 +2,6 @@
 	import { format } from 'date-fns';
 
 	const { data } = $props();
-	console.log(data);
 </script>
 
 <section class="flex flex-col space-y-4">
