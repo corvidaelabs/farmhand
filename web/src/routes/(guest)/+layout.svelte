@@ -14,6 +14,9 @@
 	<Header class="mx-auto w-full max-w-screen-xl">
 		{#snippet actions()}
 			{#if data.user}
+				<a href="/dashboard">
+					<span class="font-semibold">Dashboard</span>
+				</a>
 				<MyAccount user={data.user} />
 			{:else}
 				<Button href="/login">Log in</Button>

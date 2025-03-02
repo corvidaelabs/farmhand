@@ -5,13 +5,16 @@
 	interface Props {
 		stream: StreamData;
 		routePrefix: string;
+		isActive: boolean;
 	}
-	const { stream, routePrefix }: Props = $props();
+	const { stream, routePrefix, isActive }: Props = $props();
 </script>
 
 <a
 	href={`${routePrefix}/${stream.id}`}
-	class="my-2 flex h-36 w-60 flex-col justify-between rounded bg-surface-700 p-4 text-secondary-100 transition-colors hover:bg-surface-600"
+	class="my-2 flex h-36 w-60 flex-col justify-between rounded bg-surface-700 p-4 text-secondary-100 transition-colors hover:bg-surface-600 {isActive
+		? 'border border-primary-500'
+		: ''}"
 >
 	<p class="text-right text-xs font-semibold text-surface-200">
 		{format(stream.start_time, 'MMMM d, yyyy')}
