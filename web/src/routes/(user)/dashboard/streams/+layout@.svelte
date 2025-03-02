@@ -23,7 +23,11 @@
 	{/snippet}
 	{#snippet sidebar()}
 		{#each streams as stream}
-			<StreamCard {stream} routePrefix="/dashboard/streams" />
+			<StreamCard
+				{stream}
+				routePrefix="/dashboard/streams"
+				isActive={stream.id === data.activeStreamID}
+			/>
 		{/each}
 	{/snippet}
 	{#snippet main()}
