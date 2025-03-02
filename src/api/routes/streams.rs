@@ -22,6 +22,7 @@ pub struct StreamQuery {
     stream_id: Uuid,
 }
 
+/// Gets a list of streams by user or stream ID
 pub async fn get_streams(
     State(state): State<Arc<AppState>>,
     Extension(user): Extension<Option<User>>,
