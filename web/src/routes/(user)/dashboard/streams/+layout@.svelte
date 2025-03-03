@@ -6,6 +6,7 @@
 	import AppLayout from '$lib/components/AppLayout.svelte';
 	import Alert from '$lib/components/Alert.svelte';
 	import StreamCard from '$lib/components/StreamCard.svelte';
+	import { UserRole } from '$lib/stores/user';
 
 	let { children, data }: { children: Snippet; data: LayoutServerData } = $props();
 	const streams = data.streams || [];
@@ -14,9 +15,14 @@
 <AppLayout>
 	{#snippet headerActions()}
 		<nav class="mr-4 flex items-center justify-evenly space-x-4">
-			<a href="/dashboard">
-				<span class="font-semibold">Dashboard</span>
+			<a href="/dashboard/streams">
+				<span class="font-semibold">Streams</span>
 			</a>
+			{#if data.user?.role === UserRole.ADMIN}
+				<a href="/dashboard/admin">
+					<span class="font-semibold">Admin</span>
+				</a>
+			{/if}
 			<MyAccount user={data.user} />
 			<ThemeToggler />
 		</nav>
