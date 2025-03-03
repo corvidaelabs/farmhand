@@ -11,7 +11,7 @@
 				<span class="font-semibold">FARMHAND</span>
 			</a>
 		</div>
-		<aside class="flex items-center space-x-2">
+		<aside class="flex items-center space-x-4">
 			{@render actions()}
 		</aside>
 	</nav>

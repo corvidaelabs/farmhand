@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use anyhow::Result;
 use axum::{
     extract::{Query, State},
@@ -8,6 +7,7 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Postgres};
+use std::sync::Arc;
 
 use crate::{
     api::{app_state::AppState, twitch::eventsub::subscribers::subscribe_to_events},
@@ -275,4 +275,40 @@ async fn setup_chat_messages_webhook(
     );
 
     Ok(())
+}
+
+#[derive(Serialize)]
+pub struct UsersResponse {
+    users: Vec<UserResponse>,
+}
+
+/// Gets all users, admin role required
+pub async fn get_users(
+    State(state): State<Arc<AppState>>,
+    Extension(user): Extension<Option<User>>,
+) -> impl IntoResponse {
+    let Some(user) = user else {
+        return (StatusCode::UNAUTHORIZED, "User not found").into_response();
+    };
+
+    if user.role != UserRole::Admin {
+        return (StatusCode::FORBIDDEN, "Forbidden").into_response();
+    }
+
+    let Ok(users) = User::all(&state.db).await else {
+        return (StatusCode::INTERNAL_SERVER_ERROR, "Internal Server Error").into_response();
+    };
+
+    let fmt_users = users
+        .into_iter()
+        .map(|user| UserResponse {
+            username: user.username,
+            email: user.email,
+            role: user.role,
+            settings: user.settings,
+        })
+        .collect::<Vec<UserResponse>>();
+
+    tracing::debug!("Users after formatting: {}", fmt_users.len());
+    Json(UsersResponse { users: fmt_users }).into_response()
 }

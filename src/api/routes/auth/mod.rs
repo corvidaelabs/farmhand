@@ -1,4 +1,5 @@
 pub mod oauth;
+pub mod shadow;
 
 use std::sync::Arc;
 

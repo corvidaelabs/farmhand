@@ -75,7 +75,7 @@ struct UserWithSettingsAndAccount {
     pub account_updated_at: Option<DateTime<Utc>>,
 }
 
-#[derive(sqlx::Type, Serialize, Deserialize, Clone)]
+#[derive(sqlx::Type, Serialize, Deserialize, Clone, PartialEq)]
 #[sqlx(type_name = "user_role", rename_all = "lowercase")]
 pub enum UserRole {
     Admin,
@@ -513,6 +513,7 @@ impl User {
         .fetch_all(pool)
         .await?;
 
+        tracing::debug!("Users found: {}", rows.len());
         // Group rows by user ID to handle multiple accounts per user
         let mut users_map: std::collections::HashMap<Uuid, User> = std::collections::HashMap::new();
 
