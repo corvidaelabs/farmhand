@@ -53,9 +53,12 @@ pub async fn get_streams(
     }
 
     // Otherwise, get all streams for the user
-    let streams = match Stream::find_by_user_id(user.id, &state.db).await {
-        Ok(streams) => streams,
-        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    let Ok(streams) = Stream::find_by_user_id(user.id, &state.db).await else {
+        return (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Could not get streams for user",
+        )
+            .into_response();
     };
 
     (StatusCode::OK, Json(StreamResponse { streams })).into_response()
