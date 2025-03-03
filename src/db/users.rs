@@ -513,6 +513,7 @@ impl User {
         .fetch_all(pool)
         .await?;
 
+        tracing::debug!("Users found: {}", rows.len());
         // Group rows by user ID to handle multiple accounts per user
         let mut users_map: std::collections::HashMap<Uuid, User> = std::collections::HashMap::new();
 

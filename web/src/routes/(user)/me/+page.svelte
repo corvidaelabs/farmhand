@@ -60,7 +60,7 @@
 			<div class="flex flex-col items-end">
 				<p class="text-xs text-primary-400 dark:text-white">Role</p>
 				<span
-					class="rounded-full bg-primary-100 font-medium text-primary-800 dark:bg-primary-800 dark:text-primary-100"
+					class="rounded-full bg-primary-100 font-medium uppercase text-primary-800 dark:bg-primary-800 dark:text-primary-100"
 				>
 					{user.role}
 				</span>

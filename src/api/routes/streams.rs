@@ -52,7 +52,7 @@ pub async fn get_streams(
             .into_response();
     }
 
-    // Rest of the function implementation
+    // Otherwise, get all streams for the user
     let streams = match Stream::find_by_user_id(user.id, &state.db).await {
         Ok(streams) => streams,
         Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),

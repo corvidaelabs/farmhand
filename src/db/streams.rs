@@ -8,8 +8,8 @@ pub struct Stream {
     pub user_id: Uuid,
     pub start_time: DateTime<Utc>,
     pub end_time: Option<DateTime<Utc>>,
-    pub event_log_url: Option<String>,
-    pub video_url: Option<String>,
+    pub video_id: Option<String>,
+    pub games: Option<Vec<String>>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -24,8 +24,8 @@ impl Serialize for Stream {
         state.serialize_field("id", &self.id)?;
         state.serialize_field("start_time", &self.start_time)?;
         state.serialize_field("end_time", &self.end_time)?;
-        state.serialize_field("event_log_url", &self.event_log_url)?;
-        state.serialize_field("video_url", &self.video_url)?;
+        state.serialize_field("games", &self.games)?;
+        state.serialize_field("video_id", &self.video_id)?;
         state.serialize_field("created_at", &self.created_at)?;
         state.serialize_field("updated_at", &self.updated_at)?;
 
@@ -41,8 +41,8 @@ impl Stream {
             user_id,
             start_time,
             end_time: None,
-            event_log_url: None,
-            video_url: None,
+            games: None,
+            video_id: None,
             created_at: Utc::now(),
             updated_at: Utc::now(),
         }
@@ -58,7 +58,7 @@ impl Stream {
 
         sqlx::query_as::<_, Stream>(
             "INSERT INTO streams (
-                id, user_id, start_time, end_time, event_log_url, video_url
+                id, user_id, start_time, end_time, games, video_id
             ) VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *",
         )
@@ -66,8 +66,8 @@ impl Stream {
         .bind(stream.user_id)
         .bind(stream.start_time)
         .bind(stream.end_time)
-        .bind(&stream.event_log_url)
-        .bind(&stream.video_url)
+        .bind(&stream.games)
+        .bind(&stream.video_id)
         .fetch_one(pool)
         .await
     }
@@ -159,38 +159,20 @@ impl Stream {
         Ok(self.clone())
     }
 
-    /// Updates the stream's event log URL
-    pub async fn set_event_log(&mut self, url: String, pool: &PgPool) -> Result<(), sqlx::Error> {
-        sqlx::query(
-            "UPDATE streams
-            SET event_log_url = $1,
-                updated_at = CURRENT_TIMESTAMP
-            WHERE id = $2",
-        )
-        .bind(&url)
-        .bind(self.id)
-        .execute(pool)
-        .await?;
-
-        self.event_log_url = Some(url);
-        self.updated_at = Utc::now();
-        Ok(())
-    }
-
     /// Updates the stream's video URL
-    pub async fn set_video(&mut self, url: String, pool: &PgPool) -> Result<(), sqlx::Error> {
+    pub async fn set_video(&mut self, video_id: String, pool: &PgPool) -> Result<(), sqlx::Error> {
         sqlx::query(
             "UPDATE streams
-            SET video_url = $1,
+            SET vide_id = $1,
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = $2",
         )
-        .bind(&url)
+        .bind(video_id.clone())
         .bind(self.id)
         .execute(pool)
         .await?;
 
-        self.video_url = Some(url);
+        self.video_id = Some(video_id);
         self.updated_at = Utc::now();
         Ok(())
     }

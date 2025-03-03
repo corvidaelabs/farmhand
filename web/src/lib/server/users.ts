@@ -138,3 +138,54 @@ export const getEventsByDate = async (
 		throw UserError.UNKNOWN;
 	}
 };
+
+// Get all users
+export const getAllUsers = async (token: string): Promise<User[]> => {
+	try {
+		const url = new URL(`${env.API_URL}/user`);
+		const response = await fetch(url, {
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		});
+
+		if (response.ok) {
+			const json = await response.json();
+			const data = json as { users: User[] };
+			return data.users;
+		} else {
+			throw UserError.INVALID_TOKEN;
+		}
+	} catch (e) {
+		if (e === UserError.INVALID_TOKEN) {
+			throw e;
+		}
+		throw UserError.UNKNOWN;
+	}
+};
+
+// Shadow a user
+export const getShadowUserToken = async (token: string, username: string): Promise<string> => {
+	try {
+		const response = await fetch(`${env.API_URL}/auth/shadow`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`
+			},
+			body: JSON.stringify({ username })
+		});
+
+		if (!response.ok) {
+			throw UserError.INVALID_TOKEN;
+		}
+
+		const data = (await response.json()) as { token: string };
+		return data.token;
+	} catch (e) {
+		if (e === UserError.INVALID_TOKEN) {
+			throw e;
+		}
+		throw UserError.UNKNOWN;
+	}
+};

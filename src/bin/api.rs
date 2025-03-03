@@ -46,7 +46,7 @@ async fn main() {
                 .route("/login", post(routes::auth::login))
                 .route(
                     "/shadow",
-                    get(routes::auth::shadow::shadow_user).layer(axum_mw::from_fn_with_state(
+                    post(routes::auth::shadow::shadow_user).layer(axum_mw::from_fn_with_state(
                         state.clone(),
                         middleware::auth::auth_middleware,
                     )),
@@ -75,6 +75,7 @@ async fn main() {
         .nest(
             "/user",
             Router::new()
+                .route("/", get(routes::user::get_users))
                 .route("/me", get(routes::user::get_self))
                 .route("/me", put(routes::user::save_user))
                 .route("/streams", get(routes::streams::get_streams))

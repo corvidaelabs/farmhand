@@ -3,19 +3,20 @@ use crate::{
     api::{app_state::AppState, jwt::encode_jwt},
     db::{users::UserRole, User},
 };
-use axum::{
-    extract::State,
-    response::{IntoResponse, Redirect},
-    Extension, Json,
-};
+use axum::{extract::State, response::IntoResponse, Extension, Json};
 use reqwest::StatusCode;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use uuid::Uuid;
 
 #[derive(Deserialize)]
 pub struct ShadowUserParams {
-    user_id: Uuid,
+    username: String,
+}
+
+#[derive(Serialize)]
+pub struct ShadowUserResponse {
+    token: String,
 }
 
 pub async fn shadow_user(
@@ -36,7 +37,7 @@ pub async fn shadow_user(
     }
 
     // Generate the user token for the target user
-    let Ok(shadowed_user) = User::by_id(params.user_id, &state.db).await else {
+    let Ok(shadowed_user) = User::by_username(params.username, &state.db).await else {
         return (StatusCode::NOT_FOUND, "User not found").into_response();
     };
 
@@ -44,7 +45,5 @@ pub async fn shadow_user(
         return (StatusCode::INTERNAL_SERVER_ERROR, "Failed to encode JWT").into_response();
     };
 
-    // Redirect to the frontend login page with the token
-    let frontend_url = std::env::var("FRONTEND_URL").expect("Could not find frontend url");
-    Redirect::to(&format!("{}/login?token={}", frontend_url, token)).into_response()
+    Json(ShadowUserResponse { token }).into_response()
 }
