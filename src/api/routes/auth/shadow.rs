@@ -7,7 +7,6 @@ use axum::{extract::State, response::IntoResponse, Extension, Json};
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use uuid::Uuid;
 
 #[derive(Deserialize)]
 pub struct ShadowUserParams {
