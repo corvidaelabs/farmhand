@@ -133,6 +133,7 @@ impl Stream {
                         .replace_nanosecond(nanoseconds as u32)?
                 },
             },
+            ack_policy: jetstream::consumer::AckPolicy::None,
             ..Default::default()
         };
 
@@ -145,7 +146,7 @@ impl Stream {
 
         // Initialize the events vector
         let mut events = Vec::new();
-        let mut batch = consumer.fetch().messages().await?;
+        let mut batch = consumer.fetch().max_messages(10000).messages().await?;
         while let Some(message) = batch.next().await {
             let Ok(message) = message else {
                 tracing::error!("Failed to unwrap message: {:?}", message);
@@ -175,8 +176,14 @@ impl Stream {
             };
 
             if let Some(end_time) = end_time {
+                tracing::debug!(
+                    "Checking for end time against {}, message timestamp: {}",
+                    end_time,
+                    timestamp_utc
+                );
                 // Check if the message is after the end time
                 if timestamp_utc > end_time {
+                    tracing::debug!("Message is after end time, total events: {}", events.len());
                     break;
                 }
             }
@@ -194,6 +201,8 @@ impl Stream {
                     }
                 }
             };
+
+            tracing::debug!("Events size: {}", events.len());
         }
         Ok(events)
     }
