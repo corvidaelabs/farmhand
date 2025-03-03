@@ -145,7 +145,7 @@ impl Stream {
 
         // Initialize the events vector
         let mut events = Vec::new();
-        let mut batch = consumer.fetch().max_messages(100).messages().await?;
+        let mut batch = consumer.fetch().messages().await?;
         while let Some(message) = batch.next().await {
             let Ok(message) = message else {
                 tracing::error!("Failed to unwrap message: {:?}", message);
