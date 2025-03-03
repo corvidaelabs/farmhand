@@ -123,7 +123,7 @@ impl Stream {
         // Configure a consumer to get all events after the start time
         let consumer_config = jetstream::consumer::pull::Config {
             filter_subject: subject,
-            max_deliver: 3,
+            max_deliver: 1,
             deliver_policy: DeliverPolicy::ByStartTime {
                 start_time: {
                     let timestamp = start_time.timestamp();
