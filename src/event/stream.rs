@@ -176,14 +176,8 @@ impl Stream {
             };
 
             if let Some(end_time) = end_time {
-                tracing::debug!(
-                    "Checking for end time against {}, message timestamp: {}",
-                    end_time,
-                    timestamp_utc
-                );
                 // Check if the message is after the end time
                 if timestamp_utc > end_time {
-                    tracing::debug!("Message is after end time, total events: {}", events.len());
                     break;
                 }
             }
@@ -201,8 +195,6 @@ impl Stream {
                     }
                 }
             };
-
-            tracing::debug!("Events size: {}", events.len());
         }
         Ok(events)
     }
